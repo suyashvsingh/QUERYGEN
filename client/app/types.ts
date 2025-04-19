@@ -1,11 +1,11 @@
 type Columns = {
-  [key: string]: string[]
-}
+  [key: string]: string[];
+};
 
 type Row = {
-  [key: string]: string | number
-}
+  [key: string]: string | number;
+};
 
 type Rows = {
-  [key: string]: Row[]
-}
+  [key: string]: Row[];
+};

@@ -1,8 +1,8 @@
-import { Request, Response } from 'express'
-import openaiClient from '../clients/openaiClient'
+import { Request, Response } from "express";
+import openaiClient from "../clients/openaiClient";
 
 const rewriteQuestionHandler = async (req: Request, res: Response) => {
-  const { nlq, five_rows, columns } = req.body
+  const { nlq, five_rows, columns } = req.body;
 
   const prompt = `
     You are an AI assistant tasked with ensuring the given question aligns with the provided database schema and data. Your role is to:
@@ -31,27 +31,27 @@ const rewriteQuestionHandler = async (req: Request, res: Response) => {
     - Provide the updated question if rewritten.
     - If no changes are needed, return the original question as is.
     - Only return the rewritten question, nothing else.
-  `
+  `;
 
   try {
     const completion = await openaiClient.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [{ role: 'user', content: prompt }],
+      model: "gpt-4o",
+      messages: [{ role: "user", content: prompt }],
       temperature: 0.3,
-    })
+    });
 
     const rewrittenQuestion = completion.choices[0].message
       ? completion.choices[0].message.content
-      : ''
-    res.status(200).json({ status: true, rewrittenQuestion })
+      : "";
+    res.status(200).json({ status: true, rewrittenQuestion });
   } catch (error) {
-    console.error(error)
+    console.error(error);
     res.status(500).json({
       status: false,
       details: (error as Error).message,
-      error: 'Failed to rewrite question',
-    })
+      error: "Failed to rewrite question",
+    });
   }
-}
+};
 
-export default rewriteQuestionHandler
+export default rewriteQuestionHandler;
