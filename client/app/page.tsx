@@ -166,9 +166,7 @@ const page = () => {
     toast.loading("Rewriting NLQ...")
     try {
       if (!nlq) {
-        toast.dismiss()
-        toast.error("Please enter a NLQ")
-        return
+        throw new Error("Please enter a NLQ")
       }
       const tables = await getTables()
       setTables(tables)
@@ -195,7 +193,6 @@ const page = () => {
     } catch (error) {
       toast.dismiss()
       toast.error((error as Error).message)
-      console.log(error)
     }
   }
 
@@ -231,8 +228,34 @@ const page = () => {
     return prompt;
   }
 
-  const onClickGetSQLQuery = () => {
-    const contextAwarePrompt = generateContextAwarePrompt(output, rows, columns)
+  const onClickGetSQLQuery = async () => {
+    try {
+      const contextAwarePrompt = generateContextAwarePrompt(output, rows, columns)
+      toast.loading("Generating SQL query...")
+      const res = await fetch("http://localhost:5000/get-sql-query", {
+        method: "POST",
+        body: JSON.stringify({ contextAwarePrompt, nlq, columns }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      const data: {
+        status: boolean,
+        sqlQuery: string,
+        error?: string,
+      } = await res.json()
+      if (data.status) {
+        setOutput(data.sqlQuery)
+        toast.dismiss()
+        toast.success("SQL query generated successfully")
+      }
+      else {
+        throw new Error(data.error)
+      }
+    } catch (error) {
+      toast.dismiss()
+      toast.error((error as Error).message)
+    }
   }
 
   return (

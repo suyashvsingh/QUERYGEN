@@ -33,8 +33,6 @@ const rewriteQuestionHandler = async (req: Request, res: Response) => {
     - Only return the rewritten question, nothing else.
   `
 
-  console.log('Prompt:', prompt)
-
   try {
     const completion = await openaiClient.chat.completions.create({
       model: 'gpt-4o',
