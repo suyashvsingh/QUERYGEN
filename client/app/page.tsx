@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { FC, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import Modal from "./(components)/modal";
 
-const page = () => {
+const page: FC = () => {
   const [schema, setSchema] = useState<string>("");
   const [nlq, setNlq] = useState<string>("");
   const [columns, setColumns] = useState<Columns>({});
   const [rows, setRows] = useState<Rows>({});
-  const [tables, setTables] = useState<string[]>([]);
-  const [output, setOutput] = useState<string>("");
+  const [sqlQuery, setSqlQuery] = useState<string>("");
+  const [result, setResult] = useState<Row[]>();
+  const [modalOpen, setModalOpen] = useState(false);
 
   const executeSQLQuery = async (query: string) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/execute-query`, {
@@ -161,13 +163,12 @@ const page = () => {
 
   const onClickRewriteNLQ = async () => {
     toast.loading("Rewriting NLQ...");
-    setOutput("");
+    setSqlQuery("");
     try {
       if (!nlq) {
         throw new Error("Please enter a NLQ");
       }
       const tables = await getTables();
-      setTables(tables);
       const columns: Columns = {};
       const rows: Rows = {};
       if (tables.length > 0) {
@@ -186,7 +187,7 @@ const page = () => {
         five_rows[table] = rows[table].slice(0, 5);
       }
       const rewrittenQuestion = await rewriteNLQ(nlq, five_rows, columns);
-      setOutput(rewrittenQuestion);
+      setNlq(rewrittenQuestion);
       toast.dismiss();
     } catch (error) {
       toast.dismiss();
@@ -215,7 +216,7 @@ const page = () => {
   
       ### Input Details:
       **Database Schema:**
-      ${JSON.stringify(schema, null, 2)}
+      ${JSON.stringify(columns, null, 2)}
   
       **Sample Data:**
       ${JSON.stringify(topFiveRows, null, 2)}
@@ -231,11 +232,14 @@ const page = () => {
   };
 
   const onClickGetSQLQuery = async () => {
-    setOutput("");
+    setSqlQuery("");
     toast.loading("Generating SQL query...");
     try {
+      if (!nlq) {
+        throw new Error("Please enter a NLQ");
+      }
       const contextAwarePrompt = generateContextAwarePrompt(
-        output,
+        nlq,
         rows,
         columns,
       );
@@ -252,7 +256,7 @@ const page = () => {
         error?: string;
       } = await res.json();
       if (data.status) {
-        setOutput(data.sqlQuery);
+        setSqlQuery(data.sqlQuery);
         toast.dismiss();
         toast.success("SQL query generated successfully");
       } else {
@@ -264,8 +268,40 @@ const page = () => {
     }
   };
 
+  const onClickRunSQLQuery = async () => {
+    toast.loading("Running SQL query...");
+    try {
+      if (!sqlQuery) {
+        throw new Error("Please generate a SQL query first");
+      }
+      const res = await executeSQLQuery(sqlQuery);
+      const data: {
+        status: boolean;
+        output: Row[];
+        error?: string;
+      } = await res.json();
+      if (data.status) {
+        setResult(data.output);
+        setModalOpen(true);
+        toast.dismiss();
+        toast.success("SQL query executed successfully");
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      toast.dismiss();
+      toast.error((error as Error).message);
+    }
+  };
+
   return (
     <div className="p-4 h-screen flex flex-col gap-4">
+      {modalOpen && (
+        <Modal
+          result={result || []}
+          setModalOpen={setModalOpen}
+        />
+      )}
       <h1 className="text-3xl font-bold text-center">text-to-SQL</h1>
       <div className="flex gap-4 h-full">
         <div className="flex flex-col gap-4 w-1/2">
@@ -277,13 +313,13 @@ const page = () => {
           />
           <div className="flex gap-4 w-full">
             <button
-              className="bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 cursor-pointer w-1/2"
+              className="bg-green-500 text-white p-2 rounded-xl hover:bg-green-600 cursor-pointer"
               onClick={onClickCreateSchema}
             >
               Create Schema
             </button>
             <button
-              className="bg-red-500 text-white p-2 rounded-xl hover:bg-red-600 cursor-pointer w-1/2"
+              className="bg-red-500 text-white p-2 rounded-xl hover:bg-red-600 cursor-pointer"
               onClick={onClickCloseDatabase}
             >
               Close Schema
@@ -299,13 +335,13 @@ const page = () => {
           />
           <div className="flex gap-4 w-full">
             <button
-              className="bg-green-500 text-white p-2 rounded-xl hover:bg-green-600 cursor-pointer w-1/2"
+              className="bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 cursor-pointer ml-auto"
               onClick={onClickRewriteNLQ}
             >
               Rewrite NLQ
             </button>
             <button
-              className="bg-green-500 text-white p-2 rounded-xl hover:bg-green-600 cursor-pointer w-1/2"
+              className="bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 cursor-pointer"
               onClick={onClickGetSQLQuery}
             >
               Get SQL Query
@@ -313,9 +349,16 @@ const page = () => {
           </div>
           <textarea
             className="h-1/2 bg-gray-200 text-black p-2 rounded-xl"
+            placeholder="Generated SQL query will appear here..."
             disabled={true}
-            value={output}
+            value={sqlQuery}
           />
+          <button
+            className="bg-green-500 text-white p-2 rounded-xl hover:bg-green-600 cursor-pointer ml-auto"
+            onClick={onClickRunSQLQuery}
+          >
+            Run SQL Query
+          </button>
         </div>
       </div>
       <Toaster />
