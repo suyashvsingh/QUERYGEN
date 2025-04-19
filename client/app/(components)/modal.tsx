@@ -1,23 +1,17 @@
-import { FC } from 'react'
+import { FC } from "react";
 
 type ModalProps = {
-  result: Row[]
-  setModalOpen: (open: boolean) => void
-}
+  result: Row[];
+  setModalOpen: (open: boolean) => void;
+};
 
-const Modal: FC<ModalProps> = ({
-  result,
-  setModalOpen,
-}) => {
+const Modal: FC<ModalProps> = ({ result, setModalOpen }) => {
   return (
     <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white p-4 rounded-xl w-3/4 h-3/4 flex flex-col justify-between text-black">
         <h2 className="text-2xl font-bold mb-4">SQL Query Result</h2>
         <div className="overflow-auto">
-          {result.length !== 0 ?
-            <Table result={result} /> :
-            'No results found'
-          }
+          {result.length !== 0 ? <Table result={result} /> : "No results found"}
         </div>
         <button
           className="bg-red-500 text-white p-2 rounded-xl hover:bg-red-600 cursor-pointer mt-4 w-fit"
@@ -27,8 +21,8 @@ const Modal: FC<ModalProps> = ({
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const Table = ({ result }: { result: Row[] }) => {
   return (
@@ -54,7 +48,7 @@ const Table = ({ result }: { result: Row[] }) => {
         ))}
       </tbody>
     </table>
-  )
-}
+  );
+};
 
-export default Modal
+export default Modal;

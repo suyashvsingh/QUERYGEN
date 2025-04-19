@@ -3,6 +3,8 @@
 import { FC, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import Modal from "./(components)/modal";
+import { FaFileUpload, FaPen, FaPlay, FaPlus } from "react-icons/fa";
+import { BsFiletypeSql } from "react-icons/bs";
 
 const page: FC = () => {
   const [schema, setSchema] = useState<string>("");
@@ -14,20 +16,26 @@ const page: FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
   const executeSQLQuery = async (query: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/execute-query`, {
-      method: "POST",
-      body: JSON.stringify({ query }),
-      headers: {
-        "Content-Type": "application/json",
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/execute-query`,
+      {
+        method: "POST",
+        body: JSON.stringify({ query }),
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    });
+    );
     return res;
   };
 
   const initializeDatabase = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/initialize-database`, {
-      method: "POST",
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/initialize-database`,
+      {
+        method: "POST",
+      },
+    );
     const data: {
       status: boolean;
       error?: string;
@@ -38,13 +46,16 @@ const page: FC = () => {
   };
 
   const createSchema = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/create-schema`, {
-      method: "POST",
-      body: JSON.stringify({ schema }),
-      headers: {
-        "Content-Type": "application/json",
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/create-schema`,
+      {
+        method: "POST",
+        body: JSON.stringify({ schema }),
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    });
+    );
     const data: {
       status: boolean;
       error?: string;
@@ -70,9 +81,12 @@ const page: FC = () => {
   const onClickCloseDatabase = async () => {
     toast.loading("Closing database...");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/close-database`, {
-        method: "POST",
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/close-database`,
+        {
+          method: "POST",
+        },
+      );
       const data: {
         status: boolean;
         error?: string;
@@ -142,13 +156,16 @@ const page: FC = () => {
   };
 
   const rewriteNLQ = async (nlq: string, five_rows: Rows, columns: Columns) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/rewrite-question`, {
-      method: "POST",
-      body: JSON.stringify({ nlq, five_rows, columns }),
-      headers: {
-        "Content-Type": "application/json",
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/rewrite-question`,
+      {
+        method: "POST",
+        body: JSON.stringify({ nlq, five_rows, columns }),
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    });
+    );
     const data: {
       status: boolean;
       rewrittenQuestion: string;
@@ -238,18 +255,17 @@ const page: FC = () => {
       if (!nlq) {
         throw new Error("Please enter a NLQ");
       }
-      const contextAwarePrompt = generateContextAwarePrompt(
-        nlq,
-        rows,
-        columns,
-      );
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/get-sql-query`, {
-        method: "POST",
-        body: JSON.stringify({ contextAwarePrompt, nlq, columns }),
-        headers: {
-          "Content-Type": "application/json",
+      const contextAwarePrompt = generateContextAwarePrompt(nlq, rows, columns);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/get-sql-query`,
+        {
+          method: "POST",
+          body: JSON.stringify({ contextAwarePrompt, nlq, columns }),
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
       const data: {
         status: boolean;
         sqlQuery: string;
@@ -296,33 +312,53 @@ const page: FC = () => {
 
   return (
     <div className="p-4 h-screen flex flex-col gap-4">
-      {modalOpen && (
-        <Modal
-          result={result || []}
-          setModalOpen={setModalOpen}
-        />
-      )}
-      <h1 className="text-3xl font-bold text-center">text-to-SQL</h1>
+      {modalOpen && <Modal result={result || []} setModalOpen={setModalOpen} />}
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-center">text-to-SQL</h1>
+        <button
+          className="bg-red-500 text-white p-2 rounded-xl hover:bg-red-600 cursor-pointer flex items-center gap-2 font-semibold"
+          onClick={onClickCloseDatabase}
+        >
+          Reset
+        </button>
+      </div>
       <div className="flex gap-4 h-full">
         <div className="flex flex-col gap-4 w-1/2">
           <textarea
             className="h-full bg-gray-200 text-black p-2 rounded-xl"
-            placeholder="Enter your schema here..."
+            placeholder="Enter your schema here or upload a file..."
             value={schema}
             onChange={(e) => setSchema(e.target.value)}
           />
-          <div className="flex gap-4 w-full">
+
+          <div className="flex items-center gap-4">
+            <input
+              type="file"
+              accept=".sql,.txt,.json"
+              id="schema-upload"
+              style={{ display: "none" }}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const text = await file.text();
+                  setSchema(text);
+                  toast.success("Schema uploaded");
+                }
+              }}
+            />
             <button
-              className="bg-green-500 text-white p-2 rounded-xl hover:bg-green-600 cursor-pointer"
+              className="bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 cursor-pointer flex items-center gap-2"
+              onClick={() => document.getElementById("schema-upload")?.click()}
+            >
+              Upload Schema
+              <FaFileUpload />
+            </button>
+            <button
+              className="bg-green-500 text-white p-2 rounded-xl hover:bg-green-600 cursor-pointer flex items-center gap-2"
               onClick={onClickCreateSchema}
             >
               Create Schema
-            </button>
-            <button
-              className="bg-red-500 text-white p-2 rounded-xl hover:bg-red-600 cursor-pointer"
-              onClick={onClickCloseDatabase}
-            >
-              Close Schema
+              <FaPlus />
             </button>
           </div>
         </div>
@@ -335,16 +371,18 @@ const page: FC = () => {
           />
           <div className="flex gap-4 w-full">
             <button
-              className="bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 cursor-pointer ml-auto"
+              className="bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 cursor-pointer ml-auto flex items-center gap-2"
               onClick={onClickRewriteNLQ}
             >
               Rewrite NLQ
+              <FaPen />
             </button>
             <button
-              className="bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 cursor-pointer"
+              className="bg-green-500 text-white p-2 rounded-xl hover:bg-green-600 cursor-pointer flex items-center gap-2"
               onClick={onClickGetSQLQuery}
             >
               Get SQL Query
+              <BsFiletypeSql />
             </button>
           </div>
           <textarea
@@ -354,10 +392,11 @@ const page: FC = () => {
             value={sqlQuery}
           />
           <button
-            className="bg-green-500 text-white p-2 rounded-xl hover:bg-green-600 cursor-pointer ml-auto"
+            className="bg-green-500 text-white p-2 rounded-xl hover:bg-green-600 cursor-pointer ml-auto flex items-center gap-2"
             onClick={onClickRunSQLQuery}
           >
             Run SQL Query
+            <FaPlay />
           </button>
         </div>
       </div>
