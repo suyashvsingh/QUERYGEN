@@ -6,7 +6,7 @@ const createInitialSqlQuery = async (
   contextAwarePrompt: string,
 ): Promise<string> => {
   const completion = await openaiClient.chat.completions.create({
-    model: "gpt-4o",
+    model: process.env.MODEL as string,
     messages: [
       {
         role: "system",
@@ -62,7 +62,7 @@ const refinementIteration = async (
   `;
 
   const completion = await openaiClient.chat.completions.create({
-    model: "gpt-4o",
+    model: process.env.MODEL as string,
     messages: [
       {
         role: "user",

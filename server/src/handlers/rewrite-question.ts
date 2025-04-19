@@ -35,7 +35,7 @@ const rewriteQuestionHandler = async (req: Request, res: Response) => {
 
   try {
     const completion = await openaiClient.chat.completions.create({
-      model: "gpt-4o",
+      model: process.env.MODEL as string,
       messages: [{ role: "user", content: prompt }],
       temperature: 0.3,
     });

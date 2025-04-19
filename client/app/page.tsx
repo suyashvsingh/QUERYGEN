@@ -12,7 +12,7 @@ const page = () => {
   const [output, setOutput] = useState<string>("");
 
   const executeSQLQuery = async (query: string) => {
-    const res = await fetch("http://localhost:5000/execute-query", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/execute-query`, {
       method: "POST",
       body: JSON.stringify({ query }),
       headers: {
@@ -23,7 +23,7 @@ const page = () => {
   };
 
   const initializeDatabase = async () => {
-    const res = await fetch("http://localhost:5000/initialize-database", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/initialize-database`, {
       method: "POST",
     });
     const data: {
@@ -36,7 +36,7 @@ const page = () => {
   };
 
   const createSchema = async () => {
-    const res = await fetch("http://localhost:5000/create-schema", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/create-schema`, {
       method: "POST",
       body: JSON.stringify({ schema }),
       headers: {
@@ -68,7 +68,7 @@ const page = () => {
   const onClickCloseDatabase = async () => {
     toast.loading("Closing database...");
     try {
-      const res = await fetch("http://localhost:5000/close-database", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/close-database`, {
         method: "POST",
       });
       const data: {
@@ -124,7 +124,7 @@ const page = () => {
   };
 
   const getSortedRows = async (rows: Rows, table: string, nlq: string) => {
-    const res = await fetch("http://localhost:8000/sort", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_FLASK_URL}/sort`, {
       method: "POST",
       body: JSON.stringify({ nlq, rows: rows[table] }),
       headers: {
@@ -140,7 +140,7 @@ const page = () => {
   };
 
   const rewriteNLQ = async (nlq: string, five_rows: Rows, columns: Columns) => {
-    const res = await fetch("http://localhost:5000/rewrite-question", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/rewrite-question`, {
       method: "POST",
       body: JSON.stringify({ nlq, five_rows, columns }),
       headers: {
@@ -239,7 +239,7 @@ const page = () => {
         rows,
         columns,
       );
-      const res = await fetch("http://localhost:5000/get-sql-query", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/get-sql-query`, {
         method: "POST",
         body: JSON.stringify({ contextAwarePrompt, nlq, columns }),
         headers: {
