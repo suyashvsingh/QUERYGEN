@@ -169,9 +169,11 @@ const page: FC = () => {
     const data: {
       status: boolean;
       rewrittenQuestion: string;
+      tokens: number;
       error?: string;
     } = await res.json();
     if (data.status) {
+      console.log("Tokens used:", data.tokens);
       return data.rewrittenQuestion || "";
     } else {
       throw new Error(data.error);
@@ -269,9 +271,11 @@ const page: FC = () => {
       const data: {
         status: boolean;
         sqlQuery: string;
+        tokens: number;
         error?: string;
       } = await res.json();
       if (data.status) {
+        console.log("Tokens used:", data.tokens);
         setSqlQuery(data.sqlQuery);
         toast.dismiss();
         toast.success("SQL query generated successfully");

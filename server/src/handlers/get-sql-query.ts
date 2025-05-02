@@ -1,10 +1,14 @@
 import { Request, Response } from "express";
 import openaiClient from "../clients/openaiClient";
 import { executeQuery } from "../utils/sqliteUtils";
+import countPromptTokens from "../utils/countPromptTokens";
 
 const createInitialSqlQuery = async (
   contextAwarePrompt: string,
-): Promise<string> => {
+): Promise<{
+  sqlQuery: string;
+  tokensCount: number;
+}> => {
   const completion = await openaiClient.chat.completions.create({
     model: process.env.MODEL as string,
     messages: [
@@ -21,7 +25,12 @@ const createInitialSqlQuery = async (
     temperature: 0.3,
   });
 
-  return completion.choices[0].message?.content || "";
+  return {
+    sqlQuery: completion.choices[0].message?.content?.trim() || "",
+    tokensCount:
+      countPromptTokens(contextAwarePrompt) +
+      (completion.usage?.completion_tokens ?? 0),
+  };
 };
 
 const refinementIteration = async (
@@ -29,7 +38,11 @@ const refinementIteration = async (
   sqlQuery: string,
   sqlQueryOutput: any,
   columns: string,
-): Promise<{ refinedQuery: string; refinedSqlQueryOutput: any }> => {
+): Promise<{
+  refinedQuery: string;
+  refinedSqlQueryOutput: any;
+  tokensCount: number;
+}> => {
   const prompt = `
   You are tasked with verifying and correcting an SQL query based on the provided natural language question, its current output, and the database schema. Follow these strict rules:
 
@@ -75,29 +88,37 @@ const refinementIteration = async (
   const refinedQuery = completion.choices[0].message?.content?.trim() || "";
   const refinedSqlQueryOutput = await executeQuery(refinedQuery);
 
-  return { refinedQuery, refinedSqlQueryOutput };
+  return {
+    refinedQuery,
+    refinedSqlQueryOutput,
+    tokensCount:
+      countPromptTokens(prompt) + (completion.usage?.completion_tokens ?? 0),
+  };
 };
 
 const getSQLQueryHandler = async (req: Request, res: Response) => {
   try {
     const { contextAwarePrompt, nlq, columns } = req.body;
-    let sqlQuery = await createInitialSqlQuery(contextAwarePrompt);
+    let tokens = 0;
+
+    const initialResult = await createInitialSqlQuery(contextAwarePrompt);
+    let sqlQuery = initialResult.sqlQuery;
+    tokens += initialResult.tokensCount;
+
     let output = await executeQuery(sqlQuery);
     for (let i = 0; i < 3; i++) {
-      const { refinedQuery, refinedSqlQueryOutput } = await refinementIteration(
-        nlq,
-        sqlQuery,
-        output,
-        columns,
-      );
+      const { refinedQuery, refinedSqlQueryOutput, tokensCount } =
+        await refinementIteration(nlq, sqlQuery, output, columns);
       sqlQuery = refinedQuery;
       output = refinedSqlQueryOutput;
+      tokens += tokensCount;
     }
     console.log("Final SQL Query:", sqlQuery);
     console.log("Final SQL Query Output:", output);
     res.status(200).json({
       status: true,
       sqlQuery,
+      tokens,
     });
   } catch (error) {
     res.status(500).json({
