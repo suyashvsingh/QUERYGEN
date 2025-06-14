@@ -7,7 +7,7 @@ const fira_code = Fira_Code({
 });
 
 export const metadata: Metadata = {
-  title: "text-to-SQL",
+  title: "QUERYGEN",
   description: "A simple text to SQL generator",
 };
 

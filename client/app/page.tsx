@@ -318,7 +318,7 @@ const page: FC = () => {
     <div className="p-4 h-screen flex flex-col gap-4">
       {modalOpen && <Modal result={result || []} setModalOpen={setModalOpen} />}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-center">text-to-SQL</h1>
+        <h1 className="text-3xl font-bold text-center">QUERYGEN</h1>
         <button
           className="bg-red-500 text-white p-2 rounded-xl hover:bg-red-600 cursor-pointer flex items-center gap-2 font-semibold"
           onClick={onClickCloseDatabase}
