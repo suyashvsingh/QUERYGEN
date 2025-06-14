@@ -27,9 +27,7 @@ Follow these steps to set up and run the QUERYGEN application on your local mach
 
 ### **Prerequisites**
 
-- Python 3.8+
-- Node.js (v16 or higher)
-- npm
+- Docker
 - [OpenAI API key](https://platform.openai.com/account/api-keys)
 
 ---
@@ -38,61 +36,28 @@ Follow these steps to set up and run the QUERYGEN application on your local mach
 
 ```
 git clone https://github.com/suyashvsingh/QUERYGEN
-cd QUERYGEN
 ```
 
 ---
 
-### **2. Set Up and Start the Python Server**
+### **2. Create .env file**
+
+- Inside the `QUERYGEN` directory, create a `.env` file with the following content:
 
 ```
-cd python
-python -m venv .venv
-source .venv/bin/activate    # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-python app.py
-```
-> **Note:** Leave this terminal window open while the server is running.
-
----
-
-### **3. Set Up and Start the Node.js Server**
-
-Open a **new** terminal window or tab:
-
-```
-cd QUERYGEN/server
-npm install
-```
-
-Create a file named `.env` in the `server` directory with the following content (replace with your actual OpenAI API key):
-
-```
-OPENAI_API_KEY=
+OPENAI_API_KEY=your_openai_api_key_here
 MODEL=gpt-4o-mini
 ```
-
-Start the Node.js server:
-
-```
-npm start
-```
-> **Note:** Leave this terminal window open while the server is running.
+Replace `your_openai_api_key_here` with your actual OpenAI API key.
 
 ---
 
-### **4. Build and Start the Client**
-
-Open another **new** terminal window or tab:
+### **3. Run docker-compose.yaml file**
 
 ```
-cd QUERYGEN/client
-npm install
-npm run build
-npm start
+cd QUERYGEN
+docker compose up
 ```
-
-By default, the client will be available at [http://localhost:3000](http://localhost:3000).
 
 ---
 
@@ -100,8 +65,6 @@ By default, the client will be available at [http://localhost:3000](http://local
 
 After completing the setup, open your browser and navigate to [http://localhost:3000](http://localhost:3000).  
 You can now input natural language queries and view the generated SQL queries and their results.
-
-> **Important:** Ensure all three services (Python server, Node.js server, and client) are running simultaneously in separate terminal windows or tabs.
 
 ---
 
@@ -112,6 +75,8 @@ QUERYGEN/
 ├── client/      # Next.js frontend
 ├── server/      # Node.js backend (SQL generation & coordination)
 ├── python/      # Python Flask server (semantic similarity)
+├── .env         # Environment variables
+├── docker-compose.yaml  # Docker Compose configuration
 └── README.md
 ```
 
