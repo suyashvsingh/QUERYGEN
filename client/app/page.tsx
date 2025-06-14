@@ -17,7 +17,7 @@ const page: FC = () => {
 
   const executeSQLQuery = async (query: string) => {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/execute-query`,
+      `http://localhost:5000/execute-query`,
       {
         method: "POST",
         body: JSON.stringify({ query }),
@@ -31,7 +31,7 @@ const page: FC = () => {
 
   const initializeDatabase = async () => {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/initialize-database`,
+      `http://localhost:5000/initialize-database`,
       {
         method: "POST",
       },
@@ -47,7 +47,7 @@ const page: FC = () => {
 
   const createSchema = async () => {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/create-schema`,
+      `http://localhost:5000/create-schema`,
       {
         method: "POST",
         body: JSON.stringify({ schema }),
@@ -82,7 +82,7 @@ const page: FC = () => {
     toast.loading("Closing database...");
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/close-database`,
+        `http://localhost:5000/close-database`,
         {
           method: "POST",
         },
@@ -140,7 +140,7 @@ const page: FC = () => {
   };
 
   const getSortedRows = async (rows: Rows, table: string, nlq: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_FLASK_URL}/sort`, {
+    const res = await fetch(`http://localhost:8000/sort`, {
       method: "POST",
       body: JSON.stringify({ nlq, rows: rows[table] }),
       headers: {
@@ -157,7 +157,7 @@ const page: FC = () => {
 
   const rewriteNLQ = async (nlq: string, five_rows: Rows, columns: Columns) => {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/rewrite-question`,
+      `http://localhost:5000/rewrite-question`,
       {
         method: "POST",
         body: JSON.stringify({ nlq, five_rows, columns }),
@@ -259,7 +259,7 @@ const page: FC = () => {
       }
       const contextAwarePrompt = generateContextAwarePrompt(nlq, rows, columns);
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/get-sql-query`,
+        `http://localhost:5000/get-sql-query`,
         {
           method: "POST",
           body: JSON.stringify({ contextAwarePrompt, nlq, columns }),
