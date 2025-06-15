@@ -27,7 +27,7 @@ Follow these steps to set up and run the QUERYGEN application on your local mach
 
 ### **Prerequisites**
 
-- Docker
+- [Docker](https://docs.docker.com/engine/install/)
 - [OpenAI API key](https://platform.openai.com/account/api-keys)
 
 ---
