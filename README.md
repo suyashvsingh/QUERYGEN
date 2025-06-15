@@ -42,7 +42,7 @@ git clone https://github.com/suyashvsingh/QUERYGEN
 
 ### **2. Create .env file**
 
-- Inside the `QUERYGEN` directory, create a `.env` file with the following content:
+Inside the `QUERYGEN` directory, create a `.env` file with the following content:
 
 ```
 OPENAI_API_KEY=your_openai_api_key_here
@@ -100,3 +100,20 @@ This project is licensed under the [MIT License](LICENSE).
 - [OpenAI](https://openai.com/)
 - [Sentence Transformers](https://www.sbert.net/)
 - [Next.js](https://nextjs.org/)
+
+---
+
+## 📊 Evaluation
+
+The QUERYGEN system was tested using the [Spider dataset](https://yale-lily.github.io/spider), a benchmark for text-to-SQL tasks. The results across different difficulty levels are as follows:
+
+| Difficulty Level | Execution Accuracy (EX) |
+|------------------|------------------------|
+| Easy             | 90.0%                  |
+| Medium           | 73.0%                  |
+| Hard             | 69.8%                  |
+| Extra            | 65.0%                  |
+| **Overall**      | **75.2%**              |
+
+**Interpretation:**  
+QUERYGEN achieves strong performance, especially on easy and medium queries, and maintains robust accuracy even on complex and extra-hard tasks.
