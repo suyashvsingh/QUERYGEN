@@ -82,27 +82,6 @@ QUERYGEN/
 
 ---
 
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!  
-Feel free to [open an issue](https://github.com/suyashvsingh/QUERYGEN/issues) or submit a pull request.
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
-
-## 🙏 Acknowledgements
-
-- [OpenAI](https://openai.com/)
-- [Sentence Transformers](https://www.sbert.net/)
-- [Next.js](https://nextjs.org/)
-
----
-
 ## 📊 Evaluation
 
 The QUERYGEN system was tested using the [Spider dataset](https://yale-lily.github.io/spider), a benchmark for text-to-SQL tasks. The results across different difficulty levels are as follows:
@@ -116,4 +95,18 @@ The QUERYGEN system was tested using the [Spider dataset](https://yale-lily.gith
 | **Overall**      | **75.2%**              |
 
 **Interpretation:**  
+
 QUERYGEN achieves strong performance, especially on easy and medium queries, and maintains robust accuracy even on complex and extra-hard tasks.
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!  
+Feel free to [open an issue](https://github.com/suyashvsingh/QUERYGEN/issues) or submit a pull request.
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
